@@ -1,7 +1,10 @@
 const express = require('express');
 const ejs = require('ejs');
 const bodyParser = require('body-parser');
-const mongoConnect = require('./utilities/db').mongoConnect;
+//const mongoConnect = require('./utilities/db').mongoConnect;
+const mongoose = require('mongoose');
+
+
 
 const User = require('./models/user');
 
@@ -14,16 +17,17 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('public'));
 
 app.use((req, res, next) =>{
-    User.findById("604fbae5f1e34d1836a7f64f")
+    User.findById("605632633c615a02d85b6350")
     .then(user =>{
         console.log(user);
-        req.user = new User(user.name, user.email, user.cart, user._id);
+        req.user = user;
         next();
     })
     .catch(error => {
         console.log(error);
     });
 });
+
 
 app.use('/admin', adminRouter); ///admin - is a filter
 app.use(shopRoutes);
@@ -36,10 +40,30 @@ app.use((req, res)=>{
 
 /*app.listen(5000, ()=>{
     console.log('Server is running on Port 5000');
-});*/
+});
 
 mongoConnect(() => {
     app.listen(3000, ()=>{
         console.log('Server is running on Port 3000');
     });
+});*/
+
+mongoose.connect('mongodb://localhost:27017/BookStoreDB', { useUnifiedTopology: true})
+.then(result => {
+    User.findOne().then(user => {
+        if(!user){
+            const user = new User({
+                name: 'Jhon',
+                email: 'jhon@gmail.com',
+                cart:{
+                    item: []
+                }
+            });
+            user.save();
+        }
+    });
+    app.listen(5000);
+})
+.catch(error => {
+    console.log(error);
 });

@@ -11,7 +11,7 @@ const userSchema = new Schema({
         require: true
     },
     cart:{//embedded documet    
-        item: [{
+        items: [{
             productId: {
                 type: Schema.Types.ObjectId,
                 ref: 'Product',
@@ -42,6 +42,19 @@ userSchema.methods.addToCart = function(product){
 
     const updatedCart = {items: updatedCartItems};
     this.cart = updatedCart;
+    return this.save();
+}
+
+userSchema.methods.deleteItemFromCart = function(productId){
+    const updatedCartItems = this.cart.items.filter(item => {
+        return item.productId.toString() !== productId.toString();
+    });
+    this.cart.items = updatedCartItems;
+    return this.save();
+}
+
+userSchema.methods.clearCart = function(){
+    this.cart = { items: []};
     return this.save();
 }
 

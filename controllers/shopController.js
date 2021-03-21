@@ -46,7 +46,7 @@ exports.postCart = (req, res) => {
     const productId = req.body.productId;
     Product.findById(productId)
     .then(product =>{
-        req.user.addToCart(product);
+       return req.user.addToCart(product);
     })
     .then(result => {
         console.log("Product saved to cart");

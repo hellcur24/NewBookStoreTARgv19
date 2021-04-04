@@ -4,10 +4,9 @@ const bodyParser = require('body-parser');
 //const mongoConnect = require('./utilities/db').mongoConnect;
 const mongoose = require('mongoose');
 const session = require('express-session');
+const csurf = require('csurf');
+const flash = require('connect-flash');
 const MongoDBStore = require('connect-mongodb-session')(session);
-
-
-
 const User = require('./models/user');
 
 const adminRouter = require('./routes/admin');
@@ -24,12 +23,17 @@ app.set('view engine', ejs);
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static('public'));
 
+
+const csurfProtection = csurf();
 app.use(session({
     secret: 'my super-super secret secret',
     resave: false,
     saveUninitialized: false,
     store: store
 }));
+
+app.use(csurfProtection);
+app.use(flash());
 
 app.use((req, res, next) =>{
     if(!req.session.user){
@@ -47,6 +51,10 @@ app.use((req, res, next) =>{
     });
 });
 
+app.use((req, res, next)=>{
+    res.locals.csrfToken = req.csrfToken();
+    next();
+});
 
 app.use('/admin', adminRouter); ///admin - is a filter
 app.use(shopRoutes);
@@ -70,18 +78,6 @@ mongoConnect(() => {
 
 mongoose.connect('mongodb://localhost:27017/BookStoreDB', { useUnifiedTopology: true})
 .then(result => {
-    User.findOne().then(user => {
-        if(!user){
-            const user = new User({
-                name: 'Jhon',
-                email: 'jhon@gmail.com',
-                cart:{
-                    item: []
-                }
-            });
-            user.save();
-        }
-    });
     app.listen(5000);
 })
 .catch(error => {

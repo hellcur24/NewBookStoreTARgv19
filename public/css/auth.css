@@ -1,6 +1,17 @@
-.login-form{
+.login-form {
     width: 20rem;
     max-width: 90%;
     margin: auto;
     display: block;
+}
+
+.user-message{
+    margin: 2rem auto;
+    padding: 0.2rem;
+    width: 30%;
+    border: 2px solid red;
+    background-color: salmon;
+    border-radius: 5px;
+    color: #fff;
+    text-align: center;
 }
